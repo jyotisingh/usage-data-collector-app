@@ -1,18 +1,21 @@
-let response;
+const RSA = require("./libs/rsa")
+
+const respondWith = function (statusCode, message) {
+    return {
+        'statusCode': statusCode,
+        'body': JSON.stringify({
+            message: message
+        })
+    }
+}
 
 exports.lambda_handler = async (event, context, callback) => {
+    let response;
     try {
-        response = {
-            'statusCode': 200,
-            'body': JSON.stringify({
-                message: 'hello world'
-            })
-        }
+        const decryptpedMessage = RSA.decrypt(event.body, process.env.PRIVATE_KEY);
+        response = respondWith(200, "Hello World")
+    } catch (e) {
+        response = respondWith(422, e.message)
     }
-    catch (err) {
-        console.log(err);
-        callback(err, null);
-    }
-
     callback(null, response)
 };

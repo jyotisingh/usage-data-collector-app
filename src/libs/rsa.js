@@ -7,13 +7,13 @@ const readKey = function(path) {
 
 const RSA = {};
 
-RSA.decrypt = (textToDecrypt, privateKeyPath) => {
-    const privateKey = new NodeRSA(readKey(privateKeyPath));
+RSA.decrypt = (textToDecrypt, privateKeyContent) => {
+    const privateKey = new NodeRSA(privateKeyContent);
     return privateKey.decrypt(textToDecrypt, 'utf-8');
 };
 
-RSA.encrypt = (plainText, publicKeyPath) => {
-    const publicKey = new NodeRSA(readKey(publicKeyPath));
+RSA.encrypt = (plainText, publicKeyContent) => {
+    const publicKey = new NodeRSA(publicKeyContent);
     return publicKey.encrypt(plainText, 'base64', 'utf-8');
 };
 

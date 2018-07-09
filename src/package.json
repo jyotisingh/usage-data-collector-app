@@ -2,11 +2,10 @@
   "name": "usage-data-collector-app",
   "version": "1.0.0",
   "description": "usage-data-collector-app",
-  "main": "src/index.js",
-  "author": "SAM CLI",
+  "main": "src/app.js",
+  "author": "GoCD Team",
   "license": "MIT",
   "dependencies": {
-    "axios": "^0.18.0",
     "node-rsa": "^1.0.0"
   },
   "scripts": {
