@@ -4,7 +4,34 @@ Description: >
     usage-data-collector-app
 Globals:
     Function:
-        Timeout: 3
+        Timeout: 300
+
+Parameters:
+  DBName:
+    Default: usagedata
+    Description: The database name
+    Type: String
+    MinLength: '1'
+    MaxLength: '10'
+    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
+    ConstraintDescription: must begin with a letter and contain only alphanumeric
+      characters.
+  DBUsername:
+    Default: root
+    NoEcho: 'true'
+    Description: The database admin account username
+    Type: String
+    MinLength: '1'
+    MaxLength: '16'
+    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
+    ConstraintDescription: must begin with a letter and contain only alphanumeric
+      characters.
+  DBPassword:
+    Default: root1234
+    NoEcho: 'true'
+    Description: The database admin account password
+    Type: String
+    MinLength: '8'
 
 Resources:
     AcceptUsageDataFunction:
@@ -15,13 +42,59 @@ Resources:
             Runtime: nodejs8.10
             Environment:
                 Variables:
-                    PARAM1: VALUE
+                    PRIVATE_KEY: VALUE
+                    DB_HOST: !GetAtt UsageDataPostgresDB.Endpoint.Address
+                    DB_USERNAME: !Ref DBUsername
+                    DB_PASSWORD: !Ref DBPassword
+                    DB_NAME: !Ref DBName
+                    DB_PORT: !GetAtt UsageDataPostgresDB.Endpoint.Port
             Events:
-                HelloWorld:
+                AcceptUsageData:
                     Type: Api
                     Properties:
                         Path: /usagedata
                         Method: post
+
+
+    DbMigrationsFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            CodeUri: src
+            Handler: db.run_db_migrations
+            Runtime: nodejs8.10
+            Environment:
+                Variables:
+                    PRIVATE_KEY: VALUE
+                    DB_HOST: !GetAtt UsageDataPostgresDB.Endpoint.Address
+                    DB_USERNAME: !Ref DBUsername
+                    DB_PASSWORD: !Ref DBPassword
+                    DB_NAME: !Ref DBName
+                    DB_PORT: !GetAtt UsageDataPostgresDB.Endpoint.Port
+
+    DbMigrations:
+      Type: Custom::DbMigrations
+      Properties:
+        ServiceToken: !GetAtt DbMigrationsFunction.Arn
+        Environment:
+            Variables:
+                DB_HOST: !GetAtt UsageDataPostgresDB.Endpoint.Address
+                DB_USERNAME: !Ref DBUsername
+                DB_PASSWORD: !Ref DBPassword
+                DB_NAME: !Ref DBName
+                DB_PORT: !GetAtt UsageDataPostgresDB.Endpoint.Port
+
+    UsageDataPostgresDB:
+      Type : AWS::RDS::DBInstance
+      Properties:
+        Engine: postgres
+        DBName:
+          Ref: DBName
+        MasterUsername:
+          Ref: DBUsername
+        MasterUserPassword:
+          Ref: DBPassword
+        DBInstanceClass: db.t2.micro
+        AllocatedStorage: '5'
 
 Outputs:
     AcceptUsageDataApi:
@@ -35,3 +108,23 @@ Outputs:
     AcceptUsageDataFunctionIamRole:
       Description: "Implicit IAM Role created for AcceptUsageDataFunction function"
       Value: !GetAtt AcceptUsageDataFunctionRole.Arn
+
+    UsageDataPostgresDBConnectionString:
+      Description: "db connection string"
+      Value:
+        Fn::Join:
+        - ''
+        - - postgresql://
+          - Ref: DBUsername
+          - ":"
+          - Ref: DBPassword
+          - "@"
+          - Fn::GetAtt:
+            - UsageDataPostgresDB
+            - Endpoint.Address
+          - ":"
+          - Fn::GetAtt:
+            - UsageDataPostgresDB
+            - Endpoint.Port
+          - "/"
+          - Ref: DBName
