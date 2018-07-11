@@ -59,7 +59,7 @@ Resources:
     DbMigrationsFunction:
         Type: AWS::Serverless::Function
         Properties:
-            CodeUri: src
+            CodeUri: src/
             Handler: db.run_db_migrations
             Runtime: nodejs8.10
             Environment:

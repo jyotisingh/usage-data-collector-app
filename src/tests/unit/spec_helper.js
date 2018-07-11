@@ -1,4 +1,5 @@
 beforeEach(() => {
+    process.env.NODE_ENV = "test";
     process.env.DB_HOST = "localhost";
     process.env.DB_USERNAME = "postgres";
     process.env.DB_PASSWORD = "postgres";

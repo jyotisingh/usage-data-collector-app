@@ -1,31 +1,44 @@
 'use strict';
 
-const db = require('../../db');
+const path = require('path');
+
+var nock = require('nock');
+
+const db = require(path.resolve('db'));
+const DBHelper = require(path.resolve('tests/unit/helpers/db_helper'));
+// const UsageDataService = require(path.resolve('libs/services/usage_data_service'));
+
 const chai = require('chai');
 const expect = chai.expect;
-let event, context;
 
 
-describe('Tests execution of db migrations', function () {
-    beforeEach(() => {
-        event = {
-            StackId: "s-id",
-            ResponseURL: "url",
-            LogicalResourceId: "logical-r-id",
-            RequestId: "r-id"
-        }
+describe('DB migrations', function () {
+	beforeEach(async () => {
+		await DBHelper.initDB();
+	});
 
-    })
-    it('should run db migrations', async () => {
-        let contextDoneInvoked = false;
-        context = {
-            logStreamName: "name",
-            done: function () {
-                contextDoneInvoked = true;
-            }
-        }
-        const result = db.run_db_migrations(event, context);
-        expect(contextDoneInvoked).to.be.equal(true);
-    });
+	afterEach(async () => {
+		await DBHelper.dropDB();
+	});
+
+	it.only('should not run DB migrations on stack deletion', (done) => {
+		let url = 'https://send.callback.here.com/atpath';
+
+		const context = {
+			done: () => {
+				done();
+			}
+		};
+
+		let event = {
+			RequestType: 'Delete',
+			ResponseURL: url
+		};
+
+		nock(url).put('').reply(200);
+
+		db.run_db_migrations(event, context);
+
+	});
 });
 
