@@ -8,6 +8,7 @@
   "dependencies": {
     "db-migrate": "^0.11.1",
     "db-migrate-pg": "^0.4.0",
+    "nock": "^9.4.2",
     "node-rsa": "^1.0.0"
   },
   "scripts": {

@@ -4,7 +4,7 @@ var url = require("url");
 const DBMigrate = require("db-migrate");
 
 exports.run_db_migrations = (event, context) => {
-	console.log("Performing migrations on Stack Change...");
+	console.log("Performing DB Migrations..");
 
 	if (event.RequestType === 'Delete') {
 		console.log("Stack Deleted! Do not run migrations..");
