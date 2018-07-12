@@ -6,6 +6,10 @@ const DBMigrate = require("db-migrate");
 exports.run_db_migrations = (event, context) => {
 	console.log("Performing DB Migrations..");
 
+	console.log("Environment Variables");
+	console.log(process.env);
+	console.log('------------------------');
+
 	if (event.RequestType === 'Delete') {
 		console.log("Stack Deleted! Do not run migrations..");
 		sendResponse(context, event, "SUCCESS");
