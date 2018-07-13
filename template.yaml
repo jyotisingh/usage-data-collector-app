@@ -32,6 +32,12 @@ Parameters:
     Description: The database admin account password
     Type: String
     MinLength: '8'
+  PrivateKey:
+    Default: some-key
+    NoEcho: 'true'
+    Description: The RSA private key used for decrypting incoming encrypted message
+    Type: String
+    MinLength: '8'
 
 Resources:
     AcceptUsageDataFunction:
@@ -42,7 +48,7 @@ Resources:
             Runtime: nodejs8.10
             Environment:
                 Variables:
-                    PRIVATE_KEY: VALUE
+                    PRIVATE_KEY: !Ref PrivateKey
                     DB_HOST: !GetAtt UsageDataPostgresDB.Endpoint.Address
                     DB_USERNAME: !Ref DBUsername
                     DB_PASSWORD: !Ref DBPassword
@@ -64,7 +70,6 @@ Resources:
             Runtime: nodejs8.10
             Environment:
                 Variables:
-                    PRIVATE_KEY: VALUE
                     DB_HOST: !GetAtt UsageDataPostgresDB.Endpoint.Address
                     DB_USERNAME: !Ref DBUsername
                     DB_PASSWORD: !Ref DBPassword
